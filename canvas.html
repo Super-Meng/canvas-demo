@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>admin</title>
+
+	<script src="js/jquery-1.11.3.min.js"></script>
+	<style type="text/css">
+		#myCanvas{
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	
+	<canvas id="myCanvas" width="100%" height="100%"></canvas>
+
+	<script type="text/javascript">
+		$(function(){
+			var canvas = $('#myCanvas')[0];
+			var cxt = canvas.getContext("2d");
+
+			canvas.width = $(window).width();
+			canvas.height = $(window).height();
+			$(window).resize(function(){
+				canvas.width = $(window).width();
+				canvas.height = $(window).height();
+			});
+
+			var colors = ['75,194,112','218,233,37','255,128,128','21,159,238','20,121,211'];
+			var this_color = 0;
+			var this_Speed = 0;/*1-10*/
+			var this_StratX = 0;/*x轴距离*/
+			var setStratY = 0;/*Y轴距离*/
+			var this_Size = 25;/*0-25*/
+			var this_Opacity = 1;/*0.5-1*/
+
+			var ball_Count = 3000;/*生成小球数量*/
+
+			/*生成圆*/
+			var ball = [];
+			for (var i = 0; i < ball_Count; i++) {
+				createDot();
+				setStratY =  getRandom($(window).height()*2);
+				var dot = [this_color,this_Speed,this_StratX,setStratY,this_Size,this_Opacity];
+				ball[i] = dot;
+				updataDot(ball[i]);
+			}
+
+			setInterval(function(){
+				clearDot();
+				for (var i = 0; i < ball_Count; i++) {
+					if(ball[i][3] > -25){
+						ball[i][3] = ball[i][3] - ball[i][1];	
+					}else{/*到顶部重生小球*/
+						createDot();
+						ball[i][0] = this_color;
+						ball[i][1] = this_Speed;
+						ball[i][2] = this_StratX;
+						ball[i][3] = setStratY;
+						ball[i][4] = this_Size;
+						ball[i][5] = this_Opacity;
+					}
+					ball[i][5] = ball[i][5] - 0.001;/*透明消失*/
+					updataDot(ball[i]);
+				}
+			},50);
+
+			function createDot(){
+				this_color = colors[getRandom(4)];
+				/*this_color = getRandom(200)+','+getRandom(200)+','+getRandom(255);*/
+				this_Speed = getRandom(30)*0.1 + 1;
+				this_StratX = getRandom($(window).width() + 50) - 25;
+				setStratY =  getRandom($(window).height()) + $(window).height() + 25;
+				this_Size = getRandom(24) + 1;
+				this_Opacity = getRandom(9)*0.1 + 0.5;
+			}
+
+			function updataDot(dot){
+				cxt.beginPath();
+				cxt.fillStyle = 'rgba('+ dot[0] +',' + dot[5] +')';
+				cxt.arc(dot[2],dot[3],dot[4],0,Math.PI*2,true);
+				cxt.closePath();
+				cxt.fill();
+			}
+
+			function clearDot(){
+			    cxt.clearRect(0, 0, cxt.canvas.width, cxt.canvas.height);
+			}
+
+			/*生成随机数*/
+			function getRandom(n){
+			    return Math.floor(Math.random()*n+1);
+			}
+		})
+	</script>
+</body>
+</html>
